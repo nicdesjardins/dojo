@@ -16,13 +16,12 @@ class CalcStats(object):
         return sum(arr) / len(arr)
     
     def median(self, arr):
-        sorted_arr = sorted(arr)
-        if self.hasEvenNumberOfElements(sorted_arr):
+        if self.hasEvenNumberOfElements(arr):
             return self.avg(
-                self.middleElements(sorted_arr)
+                self.middleElements(sorted(arr))
             )
         else:
-            return self.middleElement(sorted_arr)
+            return self.middleElement(sorted(arr))
     
     def hasEvenNumberOfElements(self, arr):
         return len(arr) % 2 == 0
