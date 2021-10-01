@@ -14,8 +14,6 @@ class CalcStats(object):
         return self.sum(arr) / len(arr)
 
     def median(self, arr):
-        median = None
-        # number of elements
         sorted_arr = sorted(arr)
         if len(sorted_arr) % 2 == 0:
             median = self.avg(
@@ -38,12 +36,11 @@ class CalcStats(object):
 
     def calcStats(self):
         print("Sequence: ", self.sequence)
-        print("Sorted: ", sorted(self.sequence))
         print("Minimum value: ", min(self.sequence))
         print("Maximum value: ", max(self.sequence))
         print("Number of elements in the sequence: ", len(self.sequence))
-        print("Average value: ", self.avg(self.sequence))
-        print("Median value: ", self.median(self.sequence))
+        print("Average: ", self.avg(self.sequence))
+        print("Median: ", self.median(self.sequence))
 
 
 if __name__ == "__main__":
