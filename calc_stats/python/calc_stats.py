@@ -1,8 +1,7 @@
 
 class CalcStats(object):
-    def __init__(self, sequence = []):
-        self.sequence = sequence
-        self.calcStats()
+    def __init__(self, sequence):
+        self.calcStats(sequence)
 
     def sum(self, arr):
         sum = 0
@@ -34,14 +33,29 @@ class CalcStats(object):
         return median
 
 
-    def calcStats(self):
-        print("Sequence: ", self.sequence)
-        print("Minimum value: ", min(self.sequence))
-        print("Maximum value: ", max(self.sequence))
-        print("Number of elements in the sequence: ", len(self.sequence))
-        print("Average: ", self.avg(self.sequence))
-        print("Median: ", self.median(self.sequence))
+    def calcStats(self, sequence):
+        print("Sequence: ", sequence)
+        print("Sorted: ", sorted(sequence))
+        print("Minimum value: ", min(sequence))
+        print("Maximum value: ", max(sequence))
+        print("Number of elements in the sequence: ", len(sequence))
+        print("Average: ", self.avg(sequence))
+        print("Median: ", self.median(sequence))
 
-
+import sys
 if __name__ == "__main__":
-    CalcStats([6, 9, 15, -2, 92, 11, 100])
+    arr = []
+    for key, arg in enumerate(sys.argv):
+        if key > 0:
+            try:
+                value = float(arg)
+                arr.append(value)
+            except ValueError:
+                print("Please provide a list of numbers only.")
+                sys.exit(0)
+    
+    if len(arr) == 0:
+        print("Please provide at least 2 numbers.")
+        sys.exit(0)
+    
+    CalcStats(arr)
