@@ -2,36 +2,29 @@
 class CalcStats(object):
     def __init__(self, sequence):
         self.calcStats(sequence)
-
-    def sum(self, arr):
-        sum = 0
-        for v in arr:
-            sum += v
-        return sum
-    
+  
     def avg(self, arr):
-        return self.sum(arr) / len(arr)
+        return sum(arr) / len(arr)
+
+    def middleElement(self, arr):
+        return arr[int((len(arr)-1) / 2)]
+    
+    def middleElements(self, arr):
+        return [
+            arr[int((len(arr)/2)-1)],
+            arr[int((len(arr)/2))]
+        ]
 
     def median(self, arr):
         sorted_arr = sorted(arr)
         if len(sorted_arr) % 2 == 0:
             median = self.avg(
-                [
-                    sorted_arr[int((len(sorted_arr)/2)-1)],
-                    sorted_arr[int((len(sorted_arr)/2))]
-                ]
+                self.middleElements(sorted_arr)
             )
         else:
-            median = sorted_arr[
-                int(
-                    (
-                        len(sorted_arr)-1
-                    ) / 2
-                )
-            ]
+            median = self.middleElement(sorted_arr)
         
         return median
-
 
     def calcStats(self, sequence):
         print("Sequence: ", sequence)
