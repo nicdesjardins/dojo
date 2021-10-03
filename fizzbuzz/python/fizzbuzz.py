@@ -11,26 +11,27 @@ class FizzBuzz(object):
     multiples = {
         3: 'Fizz',
         5: 'Buzz',
-        7: 'Whizz',
-        11: 'Bang',
-        13: 'Booh!',
+        # 7: 'Whizz',
+        # 11: 'Bang',
+        # 13: 'Booh!',
     }
 
-    def isMultipleOf(self, multiple):
-        return self.count % multiple == 0
+    def isMultipleOf(self, n, multiple):
+        return n % multiple == 0
+
+    def fb(self, n):
+        self.buffer = ''
+        for multiple, say in self.multiples.items():
+            if self.isMultipleOf(n, multiple):
+                self.buffer += say
+        return self.buffer or str(n)
 
     def run(self, limit = DEFAULT_LIMIT):
         self.limit = limit
 
         while not self.limitReached() and not self.hitSuperCombo():
             self.count += 1
-            self.buffer = ''
-
-            for multiple, say in self.multiples.items():
-                if self.isMultipleOf(multiple):
-                    self.buffer += say
-
-            print(self.buffer or self.count)
+            print(self.fb(self.count))
     
     def limitReached(self):
         if self.limit != None:
