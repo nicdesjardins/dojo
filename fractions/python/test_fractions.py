@@ -1,6 +1,6 @@
 import pytest
 
-from nfractions import nFraction, AddFractions
+from nfractions import AddFractions
 
 class TestnFraction(object):
     
@@ -36,6 +36,19 @@ class TestnFraction(object):
         af = AddFractions('')
         lowest = af.lowestFraction(fraction)
         assert lowest == expected
+
+    @pytest.mark.parametrize(
+        "operation, expected",
+        [
+            ('1/2 + 1/5', '7/10'),
+            ('5/16 + 1/2', '13/16'),
+            ('5/16 + 31/32', '1 & 9/32'),
+        ]
+    )
+    def test_adding_two_fractions(self, operation, expected):
+        af = AddFractions(operation)
+        result = af.addFractions()
+        assert result == expected
 
 if __name__ == "__main__":
     pytest.main(["-v"])

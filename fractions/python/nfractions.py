@@ -5,22 +5,70 @@ class AddFractions(object):
     fractions = []
 
     def __init__(self, operation):
-        self.operation = operation
         self.fractions = []
-        self.parseOperation()
+        self.parseOperation(operation)
+
+    def parseOperation(self, operation=None):
+        if operation != None:
+            self.operation = operation
+        self.fractions = []
+        for stringFraction in self.operationToMatches():
+            self.fractions.append(self.stringToFraction(stringFraction))
+    
+    def operationToMatches(self):
+        return re.findall('[0-9]+/[0-9]+', self.operation)
+
+    def stringToFraction(self, stringFraction):
+        split = stringFraction.split('/')
+        return [int(split[0]), int(split[1])]
+
+    def addFractions(self, operation = None):
+        if operation != None:
+            self.parseOperation(operation)
+        lowestCommonDenominator = self.findLowestCommonDenominator()
+        result = [0, lowestCommonDenominator]
+        for key, fraction in enumerate(self.fractions):
+            result[0] += self.amountOfDenominators(fraction, lowestCommonDenominator)
+
+        return self.fractionToString(self.lowestFraction(result))
+    
+    def fractionToString(self, fraction):
+        numerator, denominator = fraction
+        if numerator >= denominator:
+            remainder = numerator % denominator
+            wholes = int((numerator - remainder) / denominator)
+            return str(wholes)+" & "+str(remainder)+"/"+str(denominator)
+        else:
+            return str(numerator)+"/"+str(denominator)
+
+    def amountOfDenominators(self, fraction, toDenominator):
+        numerator, denominator = fraction
+        multiplier = toDenominator / denominator
+        return int(numerator * multiplier)
+
+    def findLowestCommonDenominator(self):
+        lowestCommonDenominator = 1
+        for key, fraction in enumerate(self.fractions):
+            denominator = fraction[1]
+            if key == 0:
+                lowestCommonDenominator = denominator
+            else:
+                if denominator != lowestCommonDenominator:
+                    lowestCommonDenominator = denominator * lowestCommonDenominator
+        return lowestCommonDenominator
 
     def lowestFraction(self, fraction):
-        num, div = fraction
+        numerator, denominator = fraction
         lowest_divider = i = 1
 
-        while i <= num:
+        while i <= numerator:
             if self.divisible(fraction, i):
                 lowest_divider = i
             i += 1
 
         return [
-            int(num / lowest_divider),
-            int(div / lowest_divider)
+            int(numerator / lowest_divider),
+            int(denominator / lowest_divider)
         ]
     
     def divisible(self, fraction, i):
@@ -30,30 +78,20 @@ class AddFractions(object):
             and div % i == 0
         )
 
-    def parseOperation(self):
-        self.fractions = []
-        for match in self.operationToMatches():
-            self.fractions.append(self.matchToFraction(match))
-    
-    def operationToMatches(self):
-        return re.findall('[0-9]+/[0-9]+', self.operation)
-
-    def matchToFraction(self, match):
-        split = match.split('/')
-        return [int(split[0]), int(split[1])]
-
-class nFraction(object):
-
-    def __init__(self, number, divisor):
-        self.number = number
-        self.divisor = divisor
-
-    def __repr__(self):
-        return self.__str__()
+class Fract(object):
+    def __init__(self, number, denominator):
+        self.number=number
+        self.denominator=denominator
     
     def __str__(self):
-        return str(self.number) + "/" + str(self.divisor)
+        return str(self.number)+"/"+str(self.denominator)
 
-if __name__ == '__main__':
-    nf = nFraction(1, 5)
-    print(nf)
+import sys
+if __name__ == "__main__":
+    operation = ''
+    for key, arg in enumerate(sys.argv):
+        if key > 0:
+            operation += arg
+    
+    af = AddFractions(operation)
+    print(af.addFractions())
