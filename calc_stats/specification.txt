@@ -17,3 +17,5 @@ For example: [6, 9, 15, -2, 92, 11]
 Acknowledgments
 
 This kata is described on cyber-dojo.org
+
+Source: https://sammancoaching.org/kata_descriptions/calc_stats.html

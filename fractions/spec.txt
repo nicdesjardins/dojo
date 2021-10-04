@@ -21,3 +21,5 @@ not
 Acknowledgements
 
 I got this kata from J.B. Rainsberger but I have changed it slightly.
+
+Source: https://sammancoaching.org/kata_descriptions/fractions.html
