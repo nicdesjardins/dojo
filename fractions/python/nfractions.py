@@ -37,7 +37,11 @@ class AddFractions(object):
         if numerator >= denominator:
             remainder = numerator % denominator
             wholes = int((numerator - remainder) / denominator)
-            return str(wholes)+" & "+str(remainder)+"/"+str(denominator)
+            if remainder > 0:
+                return str(wholes)+ " & " + str(remainder)+"/"+str(denominator)
+            else:
+                return wholes
+            
         else:
             return str(numerator)+"/"+str(denominator)
 
