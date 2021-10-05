@@ -32,9 +32,5 @@ def test_that_a_year_divisible_by_100_but_not_by_400_is_not_a_leap_year(year):
 def test_that_a_year_divisible_by_400_is_a_leap_year(year):
     assert leapYear(year)
 
-
-
-
-
 if __name__ == '__main__':
     pytest.main()
