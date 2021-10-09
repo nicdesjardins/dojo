@@ -1,21 +1,77 @@
 import re
+from tabulate import tabulate
 
 class AddFractions(object):
     
+    REGEX_FIND_FRACTIONS = '[0-9]+/[0-9]+'
+    explain = True
     fractions = []
-
-    def __init__(self, operation):
+    operation = ''
+    def __init__(self, operation, explain = None):
         self.fractions = []
+        self.operation = operation
         self.parseOperation(operation)
+        if explain != None:
+            self.explain = explain
 
     def parseOperation(self, operation=None):
         if operation != None:
             self.operation = operation
-        self.fractions = []
-        for stringFraction in self.operationToMatches():
-            self.fractions.append(self.stringToFraction(stringFraction))
+        
+        self.operationToFractions()
+        self.explainOperationToFractions()
     
-    def operationToMatches(self):
+    def operationToFractions(self):
+        self.clearFractions()
+        for stringFraction in self.findFractionsInOperation():
+            self.appendFractionToFractions(
+                self.stringToFraction(stringFraction)
+            )
+
+    def clearFractions(self):
+        self.fractions = []
+
+    def appendFractionToFractions(self, fraction):
+        self.fractions.append(fraction)
+
+    SECTION_WIDTH = 80
+
+    title = ''
+    def explainOperationToFractions(self):
+        if self.explain:
+            self.title = "Explain Operation to Fractions"
+            titleLength = len(self.title)
+            
+            print("\n" + self.sideStars(">") + " " + self.title + " " + self.sideStars(">"))
+            print("operation = '"+self.operation+"'")
+            print("matches = re.findall('"+self.REGEX_FIND_FRACTIONS+"', operation)")
+            print("Found the following fractions:")
+            self.printFractions()
+            print(self.repeatStr("<", self.SECTION_WIDTH + 2)+"\n")
+
+    def sideStars(self, char):
+        titleLength = len(self.title)
+        numSideStars = int((self.SECTION_WIDTH - titleLength) / 2)
+        return self.repeatStr(char, numSideStars)
+
+    def repeatStr(self, string, length):
+        out = ''
+        for i in range(1, length):
+            out += string
+        return out
+
+    def printFractions(self):
+        # for fraction in self.fractions:
+        #     print(str(fraction[0]) + "/" + str(fraction[1]))
+        table = []
+        row = 0
+        for fraction in self.fractions:
+            row += 1
+            table.append({'row': row, 'fraction': str(fraction[0]) + "/" + str(fraction[1])})
+        print(tabulate(table, headers="keys"))
+
+
+    def findFractionsInOperation(self):
         return re.findall('[0-9]+/[0-9]+', self.operation)
 
     def stringToFraction(self, stringFraction):
