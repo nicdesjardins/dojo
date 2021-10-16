@@ -7,6 +7,8 @@ class AddFractions(object):
     explain = True
     fractions = []
     operation = ''
+    SECTION_WIDTH = 80
+
     def __init__(self, operation, explain = None):
         self.fractions = []
         self.operation = operation
@@ -34,42 +36,17 @@ class AddFractions(object):
     def appendFractionToFractions(self, fraction):
         self.fractions.append(fraction)
 
-    SECTION_WIDTH = 80
-
-    title = ''
     def explainOperationToFractions(self):
-        if self.explain:
-            self.title = "Explain Operation to Fractions"
-            titleLength = len(self.title)
-            
-            print("\n" + self.sideStars(">") + " " + self.title + " " + self.sideStars(">"))
-            print("operation = '"+self.operation+"'")
-            print("matches = re.findall('"+self.REGEX_FIND_FRACTIONS+"', operation)")
-            print("Found the following fractions:")
-            self.printFractions()
-            print(self.repeatStr("<", self.SECTION_WIDTH + 2)+"\n")
-
-    def sideStars(self, char):
-        titleLength = len(self.title)
-        numSideStars = int((self.SECTION_WIDTH - titleLength) / 2)
-        return self.repeatStr(char, numSideStars)
-
-    def repeatStr(self, string, length):
-        out = ''
-        for i in range(1, length):
-            out += string
-        return out
+        if not self.explain:
+            return
+        self.explainIt('\n------------------------')
+        print("Found the following fractions:")
+        self.printFractions()
 
     def printFractions(self):
-        # for fraction in self.fractions:
-        #     print(str(fraction[0]) + "/" + str(fraction[1]))
-        table = []
-        row = 0
         for fraction in self.fractions:
-            row += 1
-            table.append({'row': row, 'fraction': str(fraction[0]) + "/" + str(fraction[1])})
-        print(tabulate(table, headers="keys"))
-
+            print(self.fractionToString(fraction))
+        return
 
     def findFractionsInOperation(self):
         return re.findall('[0-9]+/[0-9]+', self.operation)
@@ -78,22 +55,46 @@ class AddFractions(object):
         split = stringFraction.split('/')
         return [int(split[0]), int(split[1])]
 
+    def denominatorize(self, denominator):
+        if denominator == 2:
+            return 'half'
+        elif denominator == 3:
+            return str(denominator)+'rd'
+        elif denominator == 4:
+            return 'quater'
+        else:
+            return str(denominator)+'th'
+
     def addFractions(self, operation = None):
         if operation != None:
             self.parseOperation(operation)
         lowestCommonDenominator = self.findLowestCommonDenominator()
+        self.explainIt('Add them as '+self.denominatorize(lowestCommonDenominator)+'s:')
         result = [0, lowestCommonDenominator]
         for key, fraction in enumerate(self.fractions):
+            if key != 0:
+                self.explainIt('+')
+            self.explainIt(self.fractionToString([self.amountOfDenominators(fraction, lowestCommonDenominator), lowestCommonDenominator])+' ('+self.fractionToString(fraction)+')')
             result[0] += self.amountOfDenominators(fraction, lowestCommonDenominator)
+        
+        stringFraction = self.fractionToString(result)
+        stringFractionWithWholes = self.fractionToString(result, True)
+        same = stringFraction == stringFractionWithWholes
+        self.explainIt('=\n' + stringFraction + (' (or '+stringFractionWithWholes + ')' if not same else ''))
+        self.explainIt('\n------------------------\n')
 
-        return self.fractionToString(self.lowestFraction(result))
+        return self.fractionToString(self.lowestFraction(result), True)
     
-    def fractionToString(self, fraction):
+    def fractionToString(self, fraction, extractWholes = False):
         numerator, denominator = fraction
+        
+        if not extractWholes:
+            return str(numerator)+"/"+str(denominator)
+        
         if numerator >= denominator:
             remainder = numerator % denominator
             wholes = int((numerator - remainder) / denominator)
-            return str(wholes)+" & "+str(remainder)+"/"+str(denominator)
+            return str(wholes)+(" & "+str(remainder)+"/"+str(denominator) if remainder > 0 else '')
         else:
             return str(numerator)+"/"+str(denominator)
 
@@ -102,15 +103,32 @@ class AddFractions(object):
         multiplier = toDenominator / denominator
         return int(numerator * multiplier)
 
+    def explainTitle(self):
+        if self.explain:
+            print("\n" + self.sideStars(">") + " " + self.title + " " + self.sideStars(">"))
+    
+    def explainIt(self, output):
+        if self.explain:
+            print(output)
+
     def findLowestCommonDenominator(self):
+        # self.title = 'Find the lowest common denominator'
+        # self.explainTitle()
         lowestCommonDenominator = 1
         for key, fraction in enumerate(self.fractions):
             denominator = fraction[1]
             if key == 0:
                 lowestCommonDenominator = denominator
+                # self.explainIt('If we\'re on the first fraction, take it as the lowest common denominator')
+                # self.explainIt('lcd = '+str(lowestCommonDenominator))
             else:
                 if denominator != lowestCommonDenominator:
+                    # self.explainIt('If the denominator for this fraction isn\' the same as the lowest common denominator, multiply the two and take that as the lowest common denominator.')
+                    # self.explainIt('Denominator: '+str(denominator))
+                    # self.explainIt('New lcd = '+str(denominator * lowestCommonDenominator)+' ('+str(denominator)+' * '+str(lowestCommonDenominator)+')')
                     lowestCommonDenominator = denominator * lowestCommonDenominator
+        self.explainIt('\nFound the lowest common denominator: '+str(lowestCommonDenominator)+'\n')
+        # self.explainIt(self.repeatStr("<", self.SECTION_WIDTH + 2))
         return lowestCommonDenominator
 
     def lowestFraction(self, fraction):
