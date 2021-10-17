@@ -13,7 +13,7 @@ WIN_WIDTH = 1280
 WIN_HEIGHT = 720
 WIN_TITLE = "Squarey"
 
-class SquareyGame(object):
+class Squarey(object):
       
       def __init__(self) -> None:
             self.initVars()
@@ -147,4 +147,4 @@ class SquareyGame(object):
             pygame.draw.rect(self.win, HERO_COLOR, (self.heroX, self.heroY, 20, 20))
 
 if __name__ == '__main__':
-      SquareyGame()
+      Squarey()
