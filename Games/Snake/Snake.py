@@ -40,9 +40,10 @@ class DirectionChange(object):
     coords = Coordonates()
     velocity = Veolicity()
 
-    def __init__(self, direction, coords) -> None:
+    def __init__(self, direction, coords, velocity) -> None:
         self.direction = direction
         self.coords = coords
+        self.velocity = velocity
     
 
 class SnakeTail(object):
@@ -61,13 +62,14 @@ class SnakeTail(object):
         self._direction = direction
         
     direction = property(get_direction, set_direction)
+    directionChanges = []
 
-    def __init__(self, direction, x, y, vertVelocity, horzVeolocity) -> None:
+    def __init__(self, direction, x, y, horzVeolocity, vertVelocity) -> None:
         self.direction = direction
         self.x = x
         self.y = y
         self.vertVelocity = vertVelocity
-        self.horzVelocity = horzVeolocity    
+        self.horzVelocity = horzVeolocity
 
 class Snake(object):
 
@@ -93,7 +95,6 @@ class Snake(object):
         self.snakeX = (self.DISPLAY_WIDTH / 2) - (self.snakeWidth / 2)
         self.snakeY = 1
         self.snakeTails = []
-        self.directionChangeCoords = []
         self.velocity = self.STARTING_VELOCITY
         self.setSnakeDirection(Direction.DOWN)
         self.snakeColor = self.BLUE
@@ -104,10 +105,11 @@ class Snake(object):
         self.foodWidth = 10
         self.foodHeight = 10
         self.foodColor = self.YELLOW
-
+        self.gamePaused = False
         self.initPyGame()
     
     def setSnakeDirection(self, direction):
+        
         self.snakeDirection = direction
         if self.snakeDirection == Direction.DOWN:
             self.snakeVertVelocity = 1 * self.velocity
@@ -124,6 +126,20 @@ class Snake(object):
         elif self.snakeDirection == Direction.RIGHT:
             self.snakeVertVelocity = 0
             self.snakeHorzVelocity = 1  * self.velocity
+        
+        if len(self.snakeTails) > 0:
+            snakeTail: SnakeTail
+            for snakeTail in self.snakeTails:
+                dirChange = DirectionChange(
+                        self.snakeDirection, 
+                        Coordonates(
+                            self.snakeX
+                            , self.snakeY
+                        )
+                        , Veolicity(self.snakeHorzVelocity, self.snakeVertVelocity)
+                    )
+                snakeTail.directionChanges.append(dirChange)
+                self.dumpSnakeChanges()
     
     def placeFoodRandomly(self):
         self.foodX = round(random.randrange(0, self.DISPLAY_WIDTH - self.snakeX) / 10.0) * 10.0
@@ -148,6 +164,45 @@ class Snake(object):
             self.SCREEN_HEIGHT/2 - self.DISPLAY_HEIGHT/2
         )
 
+    def runGame(self):
+        while not self.gameOver:
+            
+            if self.hasQuitGame():
+                self.END_GAME_MESSAGE = "kthxbai!"
+                self.gameOver = True
+            
+            self.handlePauseKey()
+
+            if not self.gamePaused:
+                
+                if self.snakeOverFood():
+                    self.placeFoodRandomly()
+                    self.pointsEarned += 1
+                    self.addSnakeTail()
+                
+                self.handleDirectionKeys()
+                self.moveSnakeInDirection()
+                self.tailsFollowSnake()
+                self.moveTailsInDirection()
+                
+                self.drawBG()
+                self.drawFood()
+                self.drawSnake()
+                self.drawTails()
+
+                pygame.display.update()
+                
+                if self.snakeIsOnTheEdge():
+                    self.gameOver = True
+                
+            self.clock.tick(30)
+
+        self.endGame()
+
+    def handlePauseKey(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE]:
+            self.gamePaused = not self.gamePaused
     def addSnakeTail(self):
         if len(self.snakeTails) == 0:
             
@@ -157,7 +212,7 @@ class Snake(object):
             if self.snakeDirection == Direction.UP:
                 yDiff = self.snakeHeight
 
-            elif self.snakeDirection == Direction.DOWN: # good
+            elif self.snakeDirection == Direction.DOWN:
                 yDiff = -self.snakeHeight
 
             elif self.snakeDirection == Direction.LEFT:
@@ -171,52 +226,66 @@ class Snake(object):
                     self.snakeDirection,
                     self.snakeX + xDiff,
                     self.snakeY + yDiff,
-                    self.snakeVertVelocity,
-                    self.snakeHorzVelocity
+                    self.snakeHorzVelocity,
+                    self.snakeVertVelocity
                 )
             )
-        
+        else:
+            xDiff = 0
+            yDiff = 0
+            
+            lastSnakeTail: SnakeTail = self.snakeTails[len(self.snakeTails)-1]
 
-    def runGame(self):
-        while not self.gameOver:
-            
-            if self.hasQuitGame():
-                self.END_GAME_MESSAGE = "kthxbai!"
-                self.gameOver = True
-            
-            if self.snakeOverFood():
-                print("yummy!")
-                self.placeFoodRandomly()
-                self.pointsEarned += 1
-                self.addSnakeTail()
-            
-            self.handleKeys()
-            self.moveSnakeInDirection()
-            self.tailsFollowSnake()
-            self.moveTailsInDirection()
-            
-            self.drawBG()
-            self.drawFood()
-            self.drawSnake()
-            self.drawTails()
+            if lastSnakeTail.direction == Direction.UP:
+                yDiff = lastSnakeTail.height
 
-            pygame.display.update()
-            
-            if self.snakeIsOnTheEdge():
-                self.gameOver = True
-            
-            self.clock.tick(30)
+            elif lastSnakeTail.direction == Direction.DOWN: # good
+                yDiff = -lastSnakeTail.height
 
-        self.endGame()
+            elif lastSnakeTail.direction == Direction.LEFT:
+                xDiff = lastSnakeTail.width
 
+            elif lastSnakeTail.direction == Direction.RIGHT:
+                xDiff = -lastSnakeTail.width
+
+            self.snakeTails.append(
+                SnakeTail(
+                    lastSnakeTail.direction,
+                    lastSnakeTail.x + xDiff,
+                    lastSnakeTail.y + yDiff,
+                    lastSnakeTail.horzVelocity,
+                    lastSnakeTail.vertVelocity
+                )
+            )
     def tailsFollowSnake(self):
-        if len(self.snakeTails) > 0:
-            snakeTail: SnakeTail
-            for snakeTail in self.snakeTails:
-                directionChangeCoords: DirectionChange
-                for directionChangeCoords in self.directionChangeCoords:
-                    if snakeTail.x == directionChangeCoords.coords.x and snakeTail.y == directionChangeCoords.coords.y:
-                        snakeTail.direction = directionChangeCoords.direction
+        snakeTail: SnakeTail
+        for snakeTail in self.snakeTails:
+            if len(snakeTail.directionChanges) > 0:
+                topDirectionChange: DirectionChange = snakeTail.directionChanges[0]
+                if (
+                    snakeTail.x == topDirectionChange.coords.x 
+                    and snakeTail.y == topDirectionChange.coords.y
+                ):
+                    snakeTail.direction = topDirectionChange.direction
+                    snakeTail.horzVelocity = topDirectionChange.velocity.horzVelocity
+                    snakeTail.vertVelocity = topDirectionChange.velocity.vertVelocity
+                    snakeTail.directionChanges.pop(0)
+                    
+                    self.dumpSnakeChanges()
+
+    def dumpSnakeChanges(self):
+        snakeTail: SnakeTail
+        print('---')
+
+        for i, snakeTail in enumerate(self.snakeTails):
+
+            print('snakeTail '+str(i))
+            print('\t'+str(len(snakeTail.directionChanges))+' changes: ')
+            
+            directionChange: DirectionChange
+            for ii, directionChange in enumerate(snakeTail.directionChanges):
+                print('\t\t'+str(ii) + ' -> direction:'+str(directionChange.direction))
+            
 
     def moveTailsInDirection(self):
         snakeTail: SnakeTail
@@ -320,7 +389,7 @@ class Snake(object):
     def drawBG(self):
         pygame.draw.rect(self.display, self.BACKGROUND, [0, 0, self.DISPLAY_WIDTH, self.DISPLAY_HEIGHT])
 
-    def handleKeys(self):
+    def handleDirectionKeys(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
             self.setSnakeDirection(Direction.UP)
@@ -331,17 +400,7 @@ class Snake(object):
         elif keys[pygame.K_RIGHT]:
             self.setSnakeDirection(Direction.RIGHT)
         
-        if len(self.snakeTails) > 0:
-            self.directionChangeCoords.append(
-                DirectionChange(
-                    self.snakeDirection, 
-                    [
-                        self.snakeX
-                        , self.snakeY
-                    ]
-                )
-            )
-
+        
     def moveSnakeInDirection(self):
         self.snakeX += self.snakeHorzVelocity
         self.snakeY += self.snakeVertVelocity
