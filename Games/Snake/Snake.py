@@ -189,8 +189,8 @@ class Snake(object):
             self.addSnakeTail()
                 
         self.handleDirectionKeys()
-        self.moveSnakeInDirection()
-        self.tailsFollowsHead()
+        # self.moveSnakeInDirection()
+        # self.tailsFollowsHead()
         self.moveTailsInDirection()
                 
         self.drawBG()
