@@ -1,6 +1,6 @@
 import pytest
 
-from nfractions import AddFractions
+from .fractions import AddFractions
 
 class TestnFraction(object):
     
