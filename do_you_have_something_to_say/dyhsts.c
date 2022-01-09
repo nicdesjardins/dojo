@@ -29,8 +29,8 @@ int main(void) {
     case '\n':
       break;
     default:
-	printf("invalid option: %c\n", c);
-	break;
+      printf("invalid option: %c\n", c);
+      break;
     }
 
     if (isOutcome(curr)) {
