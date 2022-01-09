@@ -5,8 +5,6 @@
 
 int main(void) {
 
-  system("clear");
-
   struct node *curr;
   curr = &nodes[SOMETHING_TO_SAY];
 
