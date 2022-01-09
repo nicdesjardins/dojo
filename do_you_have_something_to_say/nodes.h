@@ -33,3 +33,7 @@ struct node {
   , [SPEAK_W_LOVE] = { .text = "Speak w/ L.O.V.E." }
   , [STFU] = { .text = "S.T.F.U." }
 };
+
+int isOutcome(struct node *node) {
+  return node->yes == NULL ? 1 : 0;
+}

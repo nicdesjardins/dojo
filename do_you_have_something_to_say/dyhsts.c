@@ -10,31 +10,30 @@ int main(void) {
 
   int c = 0;
   while(1) {
-
+    
     if(c != '\n')
       printf("\n%s\n(y, n, or q for quit)\n\n", curr->text);
 
     c = getchar();
-    
-    if (c == 'y') {
+
+    switch(c) {
+    case 'y':
       curr = curr->yes;
-    }
-
-    else if (c == 'n') {
+      break;
+    case 'n':
       curr = curr->no;
-    }
-
-    else if (c == 'q') {
+      break;
+    case 'q':
       printf("kthxbai!\n");
       return 0;
-    }
-
-    else {
-      if(c != '\n')
+    case '\n':
+      break;
+    default:
 	printf("invalid option: %c\n", c);
+	break;
     }
 
-    if (curr->yes == NULL) {
+    if (isOutcome(curr)) {
       printf("\n%s\n\n", curr->text);
       return 0;
     }
